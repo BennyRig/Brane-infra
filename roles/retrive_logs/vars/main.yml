@@ -1,0 +1,31 @@
+error_patterns:
+  - "ERROR"
+  - "fail"
+  - "critical"
+  - "warning"
+  - "exception"
+
+container_name_map:
+    server1: 
+      - "brane-plr"
+      - "brane-api"
+      - "brane-drv"
+      - "brane-prx"
+    server2:
+      - "brane-reg-node_1"
+      - "brane-job-node_1"
+      - "brane-prx-node_1"
+
+log_check_container_names: "{{ container_name_map[inventory_hostname] | default([]) }}"
+
+# log_check_container_names_SV1:
+#   - "brane-plr"
+#   - "brane-api"
+#   - "brane-drv"
+#   - "brane-prx"
+
+# log_check_container_names_SV2:
+#   - "brane-reg-node_1"
+#   - "brane-job-node_1"
+#   - "brane-prx-node_1"
+

@@ -31,10 +31,12 @@
     - include_role:
         name: central_node
 
-- name: send certs 
+
+- name: check for issues with docker containers 
   gather_facts: no
-  hosts: localhost
-  become: no
+  hosts: retrive_logs
+  become: yes
   tasks:
-    - name: send certs to IDE 
-      script: send-to-braneIDE.sh
+    - include_role:
+        name: retrive_logs
+

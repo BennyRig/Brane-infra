@@ -1,4 +1,4 @@
-# Brane Standard Library
+# Brane Test Deploy
 This repository provides a austomated deployment script to create a testing eviroment for brane ide.
 
 ## Repository structure

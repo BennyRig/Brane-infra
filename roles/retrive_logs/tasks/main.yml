@@ -1,0 +1,57 @@
+---
+# made using genertive ai!(i Was lazy and its just a simple output proccesing)
+# - name: Get list of running Docker containers
+#   docker_host_info:
+#     containers: yes
+#   register: docker_containers
+- name: Wait for 5 seconds for containers too boot up
+  wait_for:
+    timeout: 5
+
+- name: Check logs for each specified container
+  block:
+    - name: Check logs for each specified container
+      block:
+        - name: Retrieve Docker logs
+          shell: >
+            docker logs {{ item }} 2>&1
+          loop: "{{ log_check_container_names }}"
+          register: container_logs
+          ignore_errors: yes
+          changed_when: false
+
+        - name: Analyze logs for error patterns
+          set_fact:
+            error_logs: >-
+              {{ container_logs.results | 
+                  json_query('[?stdout!=``].{container: item, logs: stdout}') | 
+                  selectattr('logs', 'search', error_patterns | join("|"), ignorecase=true) | 
+                  list }}
+
+        - name: Create error log report
+          copy:
+            content: |
+              Docker Log Error Analysis Report
+              ================================
+              {% for log_entry in error_logs %}
+              Container: {{ log_entry.container }}
+              -------------------
+              {{ log_entry.logs  }}
+
+              {% endfor %}
+            dest: "/var/log/docker_error_report_{{ inventory_hostname }}.txt"
+          # when: error_logs | length > 0 
+
+
+        
+
+- name: Display error summary
+  debug:
+    msg: "Found {{ error_logs | length }} containers with potential errors"
+  when: error_logs is defined
+
+- name: logs from hosts to localhost
+  ansible.builtin.fetch:
+    src: "/var/log/docker_error_report_{{ inventory_hostname }}.txt"
+    dest: "{{ playbook_dir }}/logs/"
+    flat: yes

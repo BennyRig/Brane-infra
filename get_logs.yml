@@ -1,0 +1,7 @@
+- name: check for issues with docker containers 
+  gather_facts: no
+  hosts: retrive_logs
+  become: yes
+  tasks:
+    - include_role:
+        name: retrive_logs

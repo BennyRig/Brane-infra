@@ -74,8 +74,8 @@
     deb: /tmp/libssl1.1_1.1.1f-1ubuntu2.23_amd64.deb
   when: branectl_result is failed
 
-# - name: ensure all services are stoped if they were running before
-#   command: branectl stop
+- name: ensure all services are stoped if they were running before
+  command: branectl stop
 
 - name: Allow access to ports used for brane
   ufw:
