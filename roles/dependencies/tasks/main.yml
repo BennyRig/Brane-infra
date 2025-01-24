@@ -86,3 +86,8 @@
     - '50051'
     - '50052'
     - '50053'
+
+- name: configure Hosts file config 
+  template:
+    src: "hosts.j2"
+    dest: /etc/hosts
