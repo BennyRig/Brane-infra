@@ -1,0 +1,36 @@
+all:
+  vars:
+    #address where any worker node may reach the central node.
+    HOSTNAME_CENTRAL: "{{ hostvars['server1']['ansible_host'] }}"
+    HOSTNAME_WORKER: "{{ hostvars['server2']['ansible_host'] }}"
+    FAKE_HOSTNAME_CENTRAL: "BRANENODE.com"
+    FAKE_HOSTNAME_WORKER: "BRANENODEWORKER.com"
+    #the identifier that the system will use for the node
+    LOCATION_ID: node_1
+  children:
+    localhost:
+      hosts:
+        127.0.0.1:
+          ansible_connection: local
+    servers:
+      hosts:
+        server1:
+          ansible_host: 145.100.106.151
+          ansible_user: benny
+        server2:
+          ansible_host: 145.100.106.152
+          ansible_user: benny
+    dependencies:
+      hosts:
+        server1:
+        server2:
+    central_node:
+      hosts:
+        server1:
+    worker_node:
+      hosts:
+        server2:
+    
+
+
+

@@ -1,0 +1,34 @@
+---
+- name: install brane prebuilt images
+  command: branectl download services central -f
+
+- name:  generate infra 
+  command: branectl generate infra -f -p ./config/infra.yml {{LOCATION_ID}}:{{ HOSTNAME_WORKER }}
+
+- name:  generate proxy 
+  command: branectl generate proxy -f -p ./config/proxy.yml
+
+- name: generate node 
+  command: branectl generate node -f -H {{FAKE_HOSTNAME_CENTRAL}}:{{HOSTNAME_CENTRAL}} central {{FAKE_HOSTNAME_CENTRAL}}
+
+- name: 
+  file:
+    path: ./config/certs/{{ HOSTNAME_WORKER }}
+    state: directory
+    mode: '0755'
+
+
+# - name: get worker crt from localhost
+#   ansible.builtin.copy:
+#     src:  "{{ playbook_dir }}/client_cert/ca.pem"
+#     dest: "./config/certs/{{ HOSTNAME_WORKER }}/"
+
+
+- name: Copy worker certificate from localhost
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/client_cert/ca.pem"
+    dest: "./config/certs/{{ HOSTNAME_WORKER }}/ca.pem"
+    mode: '0644'
+
+- name: start central node
+  command: branectl start central

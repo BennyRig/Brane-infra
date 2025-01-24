@@ -1,0 +1,88 @@
+---
+- name: Check if Docker works
+  command: docker run hello-world
+  register: docker_result
+  ignore_errors: true
+
+- name: Copy and Execute Docker install script
+  script: Docker_install_setup.bash
+  when: docker_result is failed
+
+- name: Install Docker and related packages
+  apt:
+    name: 
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: present
+    update_cache: yes
+  when: docker_result is failed
+
+- name: check if docker works Again
+  command: docker run hello-world
+  register: Docker_result
+  when: docker_result is failed
+
+- name: install buildx
+  command: docker buildx install
+  
+- name: Switch to the buildx driver
+  command: docker buildx create --use
+
+- name: 
+  apt:
+    name: openssl 
+    state: present 
+    update_cache: yes
+
+- name: check if ldd version is Greater-than 2.25
+  command: ldd --version
+  register: ldd_result
+
+- debug: msg="{{ ldd_result.stdout }}"
+
+- name: Install branectl
+  get_url:
+    url: https://github.com/epi-project/brane/releases/latest/download/branectl-linux-x86_64
+    dest: /usr/local/bin/branectl
+
+
+- name: Make the executable runnable
+  file:
+    path: /usr/local/bin/branectl
+    mode: '0755'
+
+- name: Check if branectl works
+  command: branectl --help
+  register: branectl_result
+  ignore_errors: true
+
+
+
+
+# fixes branectl: error while loading shared libraries: libssl.so.1.1: cannot open shared object file: No such file or directory
+- name: Download libssl1.1 package
+  get_url:
+    url: http://nz2.archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.23_amd64.deb
+    dest: /tmp/libssl1.1_1.1.1f-1ubuntu2.23_amd64.deb
+  when: branectl_result is failed
+
+- name: Install libssl1.1 package
+  apt:
+    deb: /tmp/libssl1.1_1.1.1f-1ubuntu2.23_amd64.deb
+  when: branectl_result is failed
+
+# - name: ensure all services are stoped if they were running before
+#   command: branectl stop
+
+- name: Allow access to ports used for brane
+  ufw:
+    rule: allow
+    port: "{{ item }}"
+  loop:
+    - '50050'
+    - '50051'
+    - '50052'
+    - '50053'

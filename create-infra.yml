@@ -1,0 +1,40 @@
+- name: General tasks
+  hosts: servers
+  become: yes
+  gather_facts: no
+  tasks:
+    - name: Ping test
+      ping:
+
+- name: Execute dependencies playbook
+  gather_facts: no
+  hosts: dependencies
+  become: yes
+  tasks:
+    - include_role:
+        name: dependencies
+
+- name: Execute worker playbook
+  gather_facts: no
+  hosts: worker_node
+  become: yes
+  tasks:
+    - include_role:
+        name: worker_node
+
+
+- name: Execute central playbook
+  gather_facts: no
+  hosts: central_node
+  become: yes
+  tasks:
+    - include_role:
+        name: central_node
+
+- name: send certs 
+  gather_facts: no
+  hosts: localhost
+  become: no
+  tasks:
+    - name: send certs to IDE 
+      script: send-to-braneIDE.sh

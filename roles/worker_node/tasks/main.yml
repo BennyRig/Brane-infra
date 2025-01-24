@@ -1,0 +1,49 @@
+---
+- name: install brane prebuilt images
+  command:  branectl download services worker -f 
+
+- name:  generate backend file
+  command: branectl generate backend -f -p ./config/backend.yml local
+
+- name:  generate proxy file
+  command: branectl generate proxy -f -p ./config/proxy.yml
+
+- name: generate policy file
+  command: branectl generate policy -f -p ./config/policies.yml
+
+- name: generate node file
+  command:  branectl generate node -f -H {{FAKE_HOSTNAME_WORKER}}:{{HOSTNAME_WORKER}} worker {{HOSTNAME_WORKER }} {{LOCATION_ID}}
+
+
+- name: generate sever certs
+  command:  branectl generate certs -f -p ./config/certs server {{LOCATION_ID}} -H {{HOSTNAME_WORKER}}
+
+
+
+- name: generate client certs 
+  shell: branectl generate certs client {{LOCATION_ID}} -H {{HOSTNAME_WORKER}} -f -p ./client-certs
+  args:
+    chdir: ./config/certs 
+
+- name: fetch certs from worker to localhost
+  ansible.builtin.fetch:
+    src: "./config/certs/{{ item }}"
+    dest: "{{ playbook_dir }}/client_cert/"
+    flat: yes
+  loop:
+    - ca.pem
+    - client-id.pem
+
+
+- name: start worker
+  command: branectl start worker
+
+
+
+
+#branectl generate certs client <LOCATION_ID> -H <HOSTNAME> -f -p ./client-certs
+# Note, that the <LOCATION_ID> is now the ID of the worker for which you are generating the certificate, and <HOSTNAME> is their address. Similarly to server certificates, you can omit -H <HOSTNAME> to default to the <LOCATION_ID>.
+
+
+
+
