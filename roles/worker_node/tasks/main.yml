@@ -8,20 +8,25 @@
 - name:  generate proxy file
   command: branectl generate proxy -f -p ./config/proxy.yml
 
-- name: generate policy file
-  command: branectl generate policy -f -p ./config/policies.yml
+# - name: generate policy file
+#   command: branectl generate policy -f -p ./config/policies.yml
+
+- name: configure policy file
+  template:
+    src: "policies.yml.j2"
+    dest: ./config/policies.yml
 
 - name: generate node file
-  command:  branectl generate node -f -H {{FAKE_HOSTNAME_WORKER}}:{{HOSTNAME_WORKER}} worker {{HOSTNAME_WORKER }} {{LOCATION_ID}}
+  command:  branectl generate node -f -H {{FAKE_HOSTNAME_WORKER}}:{{HOSTNAME_WORKER}} worker {{FAKE_HOSTNAME_WORKER }} {{LOCATION_ID}}
 
 
 - name: generate sever certs
-  command:  branectl generate certs -f -p ./config/certs server {{LOCATION_ID}} -H {{HOSTNAME_WORKER}}
+  command:  branectl generate certs -f -p ./config/certs server {{LOCATION_ID}} -H {{FAKE_HOSTNAME_WORKER}}
 
 
 
 - name: generate client certs 
-  shell: branectl generate certs client {{LOCATION_ID}} -H {{HOSTNAME_WORKER}} -f -p ./client-certs
+  shell: branectl generate certs client {{LOCATION_ID}} -H {{FAKE_HOSTNAME_WORKER}} -f -p ./client-certs
   args:
     chdir: ./config/certs 
 

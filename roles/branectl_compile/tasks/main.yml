@@ -1,0 +1,89 @@
+--- 
+- name: Check if branectl works
+  command: branectl --help
+  register: branectl_result
+  ignore_errors: true
+
+- name: Download Rust installation script
+  get_url:
+    url: https://sh.rustup.rs
+    dest: /tmp/rustup-init.sh
+    mode: '0755'
+  when: branectl_result is failed
+
+- name: Install Rust
+  command: /bin/sh /tmp/rustup-init.sh --profile minimal -y
+  when: branectl_result is failed
+
+# - name: Install related packages
+#   apt:
+#     name: 
+#       - gcc
+#       - g++    
+#       - make
+#       - cmake
+#       - pkg-config
+#       - libssl-dev
+#       - sqlite3
+#       - libsqlite3-dev
+#     state: present
+#     update_cache: yes
+#   when: branectl_result is failed
+
+# - name: link cargo and /etc/hosts
+#   command: ln -s /opt/cargo/bin/{{ item }} /usr/local/bin/
+#   loop:
+#     - cargo
+#     - rustc
+#     - rustup
+#   when: branectl_result is failed
+
+# # ln -s /opt/cargo/bin/cargo /usr/local/bin/
+# # ln -s /opt/cargo/bin/rustc /usr/local/bin/
+# # ln -s /opt/cargo/bin/rustup /usr/local/bin/
+
+# - name: Get repo
+#   ansible.builtin.git:
+#     repo:  https://github.com/epi-project/brane
+#     dest:  ./brane
+#     version: "{{BRANE_VERSION}}"
+#   when: branectl_result is failed
+
+
+# - name:  compile brane ctl
+#   command: python3 ./make.py ctl
+#   args:                                                                     
+#     chdir: "./brane"
+#   register: result1
+#   ignore_errors: false
+#   when: branectl_result is failed
+
+
+# - name: move build to bin
+#   copy: 
+#     src: ./brane/target/release/branectl
+#     dest: /usr/local/bin/branectl
+#   when: branectl_result is failed
+
+# - name: Make the executable runnable
+#   file:
+#     path: /usr/local/bin/branectl
+#     mode: '0755'
+#   when: branectl_result is failed
+
+# - name: move build to 
+#   copy: 
+#     src: ./brane/target/release/branectl
+#     dest: /usr/local/bin/branectl
+#   when: branectl_result is failed
+
+# - name: fetch build from compile node to playbook
+#   ansible.builtin.fetch:
+#     src: "./brane/target/release/branectl"
+#     dest: "{{ playbook_dir }}/branectl-build/"
+#     flat: yes
+#   when: branectl_result is failed
+
+# - name: ensure all services are stoped if they were running before
+#   command: branectl stop
+#   when: branectl_result is not failed

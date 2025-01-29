@@ -1,0 +1,21 @@
+--- 
+- name: Check if branectl works
+  command: branectl --help
+  register: branectl_result
+  ignore_errors: true
+
+- name: Copy branectl from playbook dir
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/branectl-build/branectl"
+    dest: "/usr/local/bin/"
+  when: branectl_result is failed
+
+- name: Make the executable runnable
+  file:
+    path: /usr/local/bin/branectl
+    mode: '0755'
+  when: branectl_result is failed
+
+- name: ensure all services are stoped if they were running before
+  command: branectl stop
+  when: branectl_result is not failed

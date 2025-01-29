@@ -5,7 +5,7 @@
   ignore_errors: true
 
 - name: Copy and Execute Docker install script
-  script: Docker_install_setup.bash
+  script: Docker_apt_script.sh
   when: docker_result is failed
 
 - name: Install Docker and related packages
@@ -43,39 +43,17 @@
 
 - debug: msg="{{ ldd_result.stdout }}"
 
-- name: Install branectl
-  get_url:
-    url: https://github.com/epi-project/brane/releases/latest/download/branectl-linux-x86_64
-    dest: /usr/local/bin/branectl
+# # fixes branectl: error while loading shared libraries: libssl.so.1.1: cannot open shared object file: No such file or directory
+# - name: Download libssl1.1 package
+#   get_url:
+#     url: http://nz2.archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.23_amd64.deb
+#     dest: /tmp/libssl1.1_1.1.1f-1ubuntu2.23_amd64.deb
+#   when: branectl_result is failed
 
-
-- name: Make the executable runnable
-  file:
-    path: /usr/local/bin/branectl
-    mode: '0755'
-
-- name: Check if branectl works
-  command: branectl --help
-  register: branectl_result
-  ignore_errors: true
-
-
-
-
-# fixes branectl: error while loading shared libraries: libssl.so.1.1: cannot open shared object file: No such file or directory
-- name: Download libssl1.1 package
-  get_url:
-    url: http://nz2.archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.23_amd64.deb
-    dest: /tmp/libssl1.1_1.1.1f-1ubuntu2.23_amd64.deb
-  when: branectl_result is failed
-
-- name: Install libssl1.1 package
-  apt:
-    deb: /tmp/libssl1.1_1.1.1f-1ubuntu2.23_amd64.deb
-  when: branectl_result is failed
-
-- name: ensure all services are stoped if they were running before
-  command: branectl stop
+# - name: Install libssl1.1 package
+#   apt:
+#     deb: /tmp/libssl1.1_1.1.1f-1ubuntu2.23_amd64.deb
+#   when: branectl_result is failed
 
 - name: Allow access to ports used for brane
   ufw:
@@ -86,6 +64,7 @@
     - '50051'
     - '50052'
     - '50053'
+    - '33080'
 
 - name: configure Hosts file config 
   template:

@@ -4,9 +4,7 @@
 #   docker_host_info:
 #     containers: yes
 #   register: docker_containers
-- name: Wait for 5 seconds for containers too boot up
-  wait_for:
-    timeout: 5
+
 
 - name: Check logs for each specified container
   block:
