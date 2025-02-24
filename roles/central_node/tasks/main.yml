@@ -1,6 +1,22 @@
 ---
-- name: install brane prebuilt images
-  command: branectl download services central -f
+## check if image is built
+# brane-api.tar  brane-drv.tar  brane-plr.tar  brane-prx.tar
+- name: check if file exists
+  stat:
+    path: ./brane/target/release/brane-plr.tar
+  register: stat_result
+
+
+- name:  compile brane central instance
+  command: python3 ./make.py instance
+  args:                                                                     
+    chdir: "./brane"
+  register: result1
+  when: not stat_result.stat.exists
+
+
+## move to correct folder 
+
 
 - name:  generate infra 
   command: branectl generate infra -f -p ./config/infra.yml {{LOCATION_ID}}:{{ FAKE_HOSTNAME_WORKER }}
@@ -28,12 +44,12 @@
 
 
 - name: start central node
-  command: branectl start central
+  command: branectl start --image-dir "./brane/target/release" central
 
 
 - name: Wait for Brane central node to start
   shell: |
-    docker logs brane-api 2>&1 | grep "listening on http://0.0.0.0:50051"
+    docker logs brane-api 2>&1 | grep "Now serving"
   register: output
   until: output.stdout != ""
   retries: 40

@@ -17,7 +17,7 @@ all:
     C_Remote: benny@145.100.106.153
     C_Remote_dest: /home/benny/brane-ide_fix/certs/
 
-    BRANE_VERSION: v4.0.0-test
+    BRANE_VERSION: main
     Rust_version: 1.84.0
     
   children:
@@ -55,9 +55,10 @@ all:
     branectl_compile: 
       hosts:
         server1:
+        server2:
     branectl_install:
       hosts:
-        server2:
+
 
     
 

@@ -25,6 +25,14 @@
   register: Docker_result
   when: docker_result is failed
 
+- name: Add current user to docker group
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
+
+
+
 - name: install buildx
   command: docker buildx install
   

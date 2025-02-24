@@ -16,6 +16,10 @@
     mode: '0755'
   when: branectl_result is failed
 
-- name: ensure all services are stoped if they were running before
+- name: Check if branectl works again
+  command: branectl --help
+
+- name: ensure all services are stoped if they were running before (error is fine)
   command: branectl stop
+  ignore_errors: true
   when: branectl_result is not failed

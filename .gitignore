@@ -1,3 +1,8 @@
-/.vscode
-/client_cert/
-/logs/
+.vscode
+client_cert/*
+logs/*
+branectl-build/*
+
+!client_cert/.gitkeep
+!logs/.gitkeep
+!branectl-build/.gitkeep

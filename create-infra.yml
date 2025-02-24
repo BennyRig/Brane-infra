@@ -22,49 +22,40 @@
     - include_role:
         name: branectl_compile
 
-- name: branectl_install
+
+- name: Execute worker playbook
   gather_facts: no
-  hosts: branectl_install
+  hosts: worker_node
+  become: no
+  tasks:
+    - include_role:
+        name: worker_node
+
+
+- name: Execute central playbook
+  gather_facts: no
+  hosts: central_node
+  become: no
+  tasks:
+    - include_role:
+        name: central_node
+
+
+
+- name: check for issues with docker containers 
+  gather_facts: no
+  hosts: retrive_logs
   become: yes
   tasks:
     - include_role:
-        name: branectl_install
+        name: retrive_logs
 
 
-
-# - name: Execute worker playbook
-#   gather_facts: no
-#   hosts: worker_node
-#   become: yes
-#   tasks:
-#     - include_role:
-#         name: worker_node
-
-
-# - name: Execute central playbook
-#   gather_facts: no
-#   hosts: central_node
-#   become: yes
-#   tasks:
-#     - include_role:
-#         name: central_node
-
-
-
-# - name: check for issues with docker containers 
-#   gather_facts: no
-#   hosts: retrive_logs
-#   become: yes
-#   tasks:
-#     - include_role:
-#         name: retrive_logs
-
-
-# - name: send Certs 
-#   gather_facts: no
-#   hosts: Move_certs
-#   become: no
-#   tasks:
-#     - include_role:
-#         name: Move_certs
+- name: send Certs 
+  gather_facts: no
+  hosts: Move_certs
+  become: no
+  tasks:
+    - include_role:
+        name: Move_certs
 

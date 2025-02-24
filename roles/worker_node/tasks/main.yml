@@ -1,48 +1,84 @@
 ---
-- name: install brane prebuilt images
-  command:  branectl download services worker -f 
+### check if file exists
+- name: check if file exists
+  stat:
+    path: ./brane/target/release/brane-chk.tar
+  register: stat_result
+
+
+- name:  compile brane worker-instance
+  command: python3 ./make.py worker-instance
+  args:                                                                     
+    chdir: "./brane"
+  register: result1
+  when: not stat_result.stat.exists
+
+
+# - name: install brane prebuilt images
+#   command:  branectl download services worker -f
 
 - name:  generate backend file
   command: branectl generate backend -f -p ./config/backend.yml local
+  become: yes
 
 - name:  generate proxy file
   command: branectl generate proxy -f -p ./config/proxy.yml
+  become: yes
+
+
+- name: generate policy file
+  command: branectl generate policy_secret -f -p ./config/policy_deliberation_secret.json
+  become: yes
+
+- name: generate policy file
+  command: branectl generate policy_secret -f -p ./config/policy_expert_secret.json
+  become: yes
+
+- name: generate policy file
+  command: branectl generate policy_db -f -p ./policies.db
+  become: yes
 
 # - name: generate policy file
 #   command: branectl generate policy -f -p ./config/policies.yml
 
-- name: configure policy file
-  template:
-    src: "policies.yml.j2"
-    dest: ./config/policies.yml
+# - name: configure policy file
+#   template:
+#     src: "policies.yml.j2"
+#     dest: ./config/policies.yml
 
 - name: generate node file
   command:  branectl generate node -f -H {{FAKE_HOSTNAME_WORKER}}:{{HOSTNAME_WORKER}} worker {{FAKE_HOSTNAME_WORKER }} {{LOCATION_ID}}
-
+  become: yes
 
 - name: generate sever certs
   command:  branectl generate certs -f -p ./config/certs server {{LOCATION_ID}} -H {{FAKE_HOSTNAME_WORKER}}
-
+  become: yes
 
 
 - name: generate client certs 
   shell: branectl generate certs client {{LOCATION_ID}} -H {{FAKE_HOSTNAME_WORKER}} -f -p ./client-certs
   args:
     chdir: ./config/certs 
+  become: yes
 
 - name: fetch certs from worker to localhost
   ansible.builtin.fetch:
-    src: "./config/certs/{{ item }}"
+    src: "./config/certs/client-certs/{{ item }}"
     dest: "{{ playbook_dir }}/client_cert/"
     flat: yes
   loop:
     - ca.pem
     - client-id.pem
 
+# branectl generate policy_token <INITIATOR> <SYSTEM> <DURATION> -s <PATH_TO_SECRET>
+- name: generate policy token 
+  command:  branectl generate policy_token test test 1y -s ./config/policy_expert_secret.json
+  become: yes
+
 
 - name: start worker
-  command: branectl start worker
-
+  command: branectl start --image-dir "./brane/target/release" worker
+  become: yes
 
 
 
