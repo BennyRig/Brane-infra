@@ -12,5 +12,6 @@ container_name_map:
       - "brane-reg-node_1"
       - "brane-job-node_1"
       - "brane-prx-node_1"
+      - "brane-chk-node_1"
 
 log_check_container_names: "{{ container_name_map[inventory_hostname] | default([]) }}"

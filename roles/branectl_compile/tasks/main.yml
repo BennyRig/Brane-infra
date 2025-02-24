@@ -70,7 +70,8 @@
 
 
 - name:  compile brane ctl
-  command: python3 ./make.py ctl
+  # command: python3 ./make.py ctl
+  command: make ctl PROFILE=release
   args:                                                                     
     chdir: "./brane"
   register: result1

@@ -8,7 +8,8 @@
 
 
 - name:  compile brane central instance
-  command: python3 ./make.py instance
+  # command: python3 ./make.py instance
+  command: make central-images PROFILE=release
   args:                                                                     
     chdir: "./brane"
   register: result1
@@ -19,12 +20,16 @@
 
 
 - name:  generate infra 
+  become: true
   command: branectl generate infra -f -p ./config/infra.yml {{LOCATION_ID}}:{{ FAKE_HOSTNAME_WORKER }}
 
 - name:  generate proxy 
+  become: true
+
   command: branectl generate proxy -f -p ./config/proxy.yml
 
 - name: generate node 
+  become: true
   command: branectl generate node -f -H {{FAKE_HOSTNAME_CENTRAL}}:{{HOSTNAME_CENTRAL}} central {{FAKE_HOSTNAME_CENTRAL}}
 
 
@@ -37,6 +42,7 @@
 
 
 - name: Copy worker certificate from localhost
+  become: true
   ansible.builtin.copy:
     src: "{{ playbook_dir }}/client_cert/ca.pem"
     dest: "/home/{{hostvars['server1']['ansible_user']}}/config/certs/{{ LOCATION_ID }}/"
@@ -44,6 +50,7 @@
 
 
 - name: start central node
+  become: true
   command: branectl start --image-dir "./brane/target/release" central
 
 

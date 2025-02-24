@@ -49,15 +49,11 @@ all:
       hosts: 
         server1:
         server2:
-    Move_certs:
-      hosts:
-        localhost:
     branectl_compile: 
       hosts:
         server1:
         server2:
-    branectl_install:
-      hosts:
+
 
 
     
