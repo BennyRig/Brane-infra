@@ -62,7 +62,7 @@
 
 - name: Get repo
   ansible.builtin.git:
-    repo:  https://github.com/epi-project/brane
+    repo:  https://github.com/BraneFramework/brane
     dest:  ./brane
     version: "{{BRANE_VERSION}}"
   become: false
